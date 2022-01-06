@@ -4,11 +4,11 @@
 
 import React, { ReactElement } from 'react'
 import { Grid } from '@material-ui/core'
-import moment, { unitOfTime } from 'moment'
+import moment from 'moment'
 import { useRemoteService } from 'utils/hooks'
 import { useFilterDataFromEstimates } from 'utils/helpers'
 import { FilterResultResponse } from 'Types'
-import config from 'ConfigLoader'
+// import config from 'ConfigLoader'
 import useFilters from 'common/FilterBar/utils/FilterHook'
 import LoadingMessage from 'common/LoadingMessage'
 import EmissionsFilterBar from './EmissionsFilterBar'
@@ -23,18 +23,19 @@ import { EstimationResult } from '@cloud-carbon-footprint/common'
 
 export default function EmissionsMetricsPage(): ReactElement {
   const classes = useStyles()
-  const dateRangeType: string = config().DATE_RANGE.TYPE
-  const dateRangeValue: string = config().DATE_RANGE.VALUE
-  const endDate: moment.Moment = moment.utc()
+  // const dateRangeType: string = config().DATE_RANGE.TYPE
+  // const dateRangeValue: string = config().DATE_RANGE.VALUE
+  const endDate: moment.Moment = moment.utc('2020-12-31')
 
-  let startDate: moment.Moment
-  if (config().PREVIOUS_YEAR_OF_USAGE) {
-    startDate = moment.utc(Date.UTC(endDate.year() - 1, 0, 1, 0, 0, 0, 0))
-  } else {
-    startDate = moment
-      .utc()
-      .subtract(dateRangeValue, dateRangeType as unitOfTime.DurationConstructor)
-  }
+  // let startDate: moment.Moment
+  // if (config().PREVIOUS_YEAR_OF_USAGE) {
+  //   startDate = moment.utc(Date.UTC(endDate.year() - 1, 0, 1, 0, 0, 0, 0))
+  // } else {
+  //   startDate = moment
+  //     .utc()
+  //     .subtract(dateRangeValue, dateRangeType as unitOfTime.DurationConstructor)
+  // }
+  const startDate: moment.Moment = moment.utc('2020-01-01')
 
   const { data, loading } = useRemoteService([], startDate, endDate)
 
