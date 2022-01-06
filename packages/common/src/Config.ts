@@ -52,6 +52,7 @@ export interface CCFConfig {
   LOGGING_MODE?: string
   GROUP_QUERY_RESULTS_BY?: GroupBy
   CACHE_MODE?: string
+  ADD_EMBODIED_EMISSIONS?: boolean
 }
 
 export enum GroupBy {
@@ -185,6 +186,9 @@ export const appConfig: CCFConfig = {
       (process.env.GROUP_QUERY_RESULTS_BY || 'day') as keyof typeof GroupBy
     ],
   CACHE_MODE: getEnvVar('CACHE_MODE') || '',
+  ADD_EMBODIED_EMISSIONS:
+    !!process.env.ADD_EMBODIED_EMISSIONS &&
+    process.env.ADD_EMBODIED_EMISSIONS !== 'false',
 }
 
 export default appConfig

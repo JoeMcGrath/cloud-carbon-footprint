@@ -216,8 +216,8 @@ describe('AWSAccount', () => {
         usageType: 'USE2-BoxUsage:t2.micro',
         usageUnit: 'Hrs',
         vCpus: '2',
-        kilowattHours: 0.013198543918379168,
-        co2e: 0.000005487360626785731,
+        kilowattHours: 0.0005232350000000001,
+        co2e: 2.1753756742500007e-7,
       },
     ]
     expect(result).toEqual(expectedResult)

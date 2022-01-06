@@ -80,6 +80,7 @@ export default class CostAndUsageReports {
   private readonly tableName: string
   private readonly queryResultsLocation: string
   private readonly costAndUsageReportsLogger: Logger
+  private readonly addEmbodiedEmissions: boolean
 
   constructor(
     private readonly computeEstimator: ComputeEstimator,
@@ -94,6 +95,7 @@ export default class CostAndUsageReports {
     this.dataBaseName = configLoader().AWS.ATHENA_DB_NAME
     this.tableName = configLoader().AWS.ATHENA_DB_TABLE
     this.queryResultsLocation = configLoader().AWS.ATHENA_QUERY_RESULT_LOCATION
+    this.addEmbodiedEmissions = configLoader().ADD_EMBODIED_EMISSIONS
     this.costAndUsageReportsLogger = new Logger('CostAndUsageReports')
   }
   async getEstimates(
@@ -264,6 +266,19 @@ export default class CostAndUsageReports {
           emissionsFactors,
         )
 
+        // if there exist any memory footprint or embodied emissions,
+        // add the kwh and co2e for all compute,  memory, and embodied emissions
+        let accumulatedCo2e = computeFootprint.co2e
+        let accumulatedKwh = computeFootprint.kilowattHours
+        if (memoryFootprint.co2e) {
+          accumulatedCo2e += memoryFootprint.co2e
+          accumulatedKwh += memoryFootprint.kilowattHours
+        }
+        if (this.addEmbodiedEmissions && embodiedEmissions.co2e) {
+          accumulatedCo2e += embodiedEmissions.co2e
+          accumulatedKwh += embodiedEmissions.kilowattHours
+        }
+
         if (isNaN(computeFootprint.kilowattHours)) {
           this.costAndUsageReportsLogger.warn(
             `Could not estimate compute usage for usage type: ${costAndUsageReportRow.usageType}`,
@@ -271,32 +286,7 @@ export default class CostAndUsageReports {
           return {
             timestamp: computeFootprint.timestamp,
             kilowattHours: 0,
-            co2e: computeFootprint.co2e,
-            usesAverageCPUConstant: computeFootprint.usesAverageCPUConstant,
-          }
-        }
-
-        // if there exist any memory footprint or embodied emissions,
-        // add the kwh and co2e for all compute,  memory, and embodied emissions
-        if (memoryFootprint.co2e || embodiedEmissions.co2e) {
-          accumulateCo2PerCost(
-            EstimateClassification.COMPUTE,
-            computeFootprint.co2e +
-              memoryFootprint.co2e +
-              embodiedEmissions.co2e,
-            costAndUsageReportRow.cost,
-            AWS_CLOUD_CONSTANTS.CO2E_PER_COST,
-          )
-          return {
-            timestamp: computeFootprint.timestamp,
-            kilowattHours:
-              computeFootprint.kilowattHours +
-              memoryFootprint.kilowattHours +
-              embodiedEmissions.kilowattHours,
-            co2e:
-              computeFootprint.co2e +
-              memoryFootprint.co2e +
-              embodiedEmissions.co2e,
+            co2e: 0,
             usesAverageCPUConstant: computeFootprint.usesAverageCPUConstant,
           }
         }
@@ -304,12 +294,17 @@ export default class CostAndUsageReports {
         if (computeFootprint)
           accumulateCo2PerCost(
             EstimateClassification.COMPUTE,
-            computeFootprint.co2e,
+            accumulatedCo2e,
             costAndUsageReportRow.cost,
             AWS_CLOUD_CONSTANTS.CO2E_PER_COST,
           )
 
-        return computeFootprint
+        return {
+          timestamp: computeFootprint.timestamp,
+          kilowattHours: accumulatedKwh,
+          co2e: accumulatedCo2e,
+          usesAverageCPUConstant: computeFootprint.usesAverageCPUConstant,
+        }
       case KNOWN_USAGE_UNITS.GB_MONTH_1:
       case KNOWN_USAGE_UNITS.GB_MONTH_2:
       case KNOWN_USAGE_UNITS.GB_MONTH_3:

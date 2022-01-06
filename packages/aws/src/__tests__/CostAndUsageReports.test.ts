@@ -65,6 +65,7 @@ jest.mock('@cloud-carbon-footprint/common', () => ({
         ATHENA_QUERY_RESULT_LOCATION: 'test-location',
         ATHENA_REGION: 'test-region',
       },
+      ADD_EMBODIED_EMISSIONS: true,
     }
   }),
 }))
