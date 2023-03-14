@@ -1,5 +1,19 @@
 # @cloud-carbon-footprint/cli
 
+## 1.10.0
+
+### Minor Changes
+
+- 3e84626a: Adds MongoDB config option for the guided installation
+
+### Patch Changes
+
+- Updated dependencies [84fa2da1]
+- Updated dependencies [1d297700]
+- Updated dependencies [3f17990d]
+  - @cloud-carbon-footprint/app@1.2.0
+  - @cloud-carbon-footprint/common@1.10.0
+
 ## 1.9.1
 
 ### Patch Changes
