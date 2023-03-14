@@ -1,5 +1,11 @@
 # @cloud-carbon-footprint/create-app
 
+## 2.3.0
+
+### Minor Changes
+
+- 3e84626a: Adds MongoDB config option for the guided installation
+
 ## 2.2.1
 
 ### Patch Changes
